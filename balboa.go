@@ -1,14 +1,14 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
-    "strconv"
-    "errors"
+	"strconv"
 	"strings"
 
 	"github.com/D4-project/d4-golang-utils/config"
@@ -83,8 +83,8 @@ func main() {
 		c.redisPort = sss[1]
 	}
 	c.redisQueue = string(config.ReadConfigFile(*confdir, "redis_queue"))
-    c.balboaSocket = string(config.ReadConfigFile(*confdir, "balboa_socket"))
-    //TODO: handle empty ...
+	c.balboaSocket = string(config.ReadConfigFile(*confdir, "balboa_socket"))
+	//TODO: handle empty ...
 
 	initRedis(c.redisHost, c.redisPort, c.redisDB)
 	defer cr.Close()
@@ -99,9 +99,9 @@ func main() {
 		if err != nil {
 			log.Fatal("Queue processed")
 		}
-        // Write in Balboa socket
+		// Write in Balboa socket
 		cs.Write([]byte(dnsLine))
-        //TODO: Check that it works...
+		//TODO: Check that it works...
 
 		// Exit Signal Handle
 		select {
