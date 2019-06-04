@@ -88,20 +88,36 @@ func main() {
 
 	initRedis(c.redisHost, c.redisPort, c.redisDB)
 	defer cr.Close()
-	cs, err := net.Dial("unix", c.balboaSocket)
+
+	addr, err := net.ResolveUnixAddr("unix", c.balboaSocket)
+	if err != nil {
+		fmt.Printf("Failed to resolve: %v\n", err)
+		os.Exit(1)
+	}
+	cs, err := net.DialUnix("unix", nil, addr)
+	if err != nil {
+		fmt.Printf("Failed to dial: %v\n", err)
+		os.Exit(1)
+	}
+	defer cs.Close()
+
 	//defer cs.Close()
 	if err != nil {
 		panic(err)
 	}
 	// pop redis queue
 	for {
-		dnsLine, err := redis.String(cr.Do("LPOP", "analyzer:"+c.redisQueue))
+		dnsLine, err := redis.String(cr.Do("LPOP", "analyzer:8:"+c.redisQueue))
 		if err != nil {
-			log.Fatal("Queue processed")
+			fmt.Println("Queue processed.")
+			os.Exit(0)
 		}
 		// Write in Balboa socket
-		cs.Write([]byte(dnsLine))
-		//TODO: Check that it works...
+		if i, err := cs.Write([]byte(dnsLine)); err != nil {
+			fmt.Printf("DIAL: Error: %v\n", err)
+		} else {
+			fmt.Printf("Sent %v bytes\n", i)
+		}
 
 		// Exit Signal Handle
 		select {
