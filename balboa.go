@@ -84,39 +84,33 @@ func main() {
 	}
 	c.redisQueue = string(config.ReadConfigFile(*confdir, "redis_queue"))
 	c.balboaSocket = string(config.ReadConfigFile(*confdir, "balboa_socket"))
-	//TODO: handle empty ...
 
 	initRedis(c.redisHost, c.redisPort, c.redisDB)
 	defer cr.Close()
 
 	addr, err := net.ResolveUnixAddr("unix", c.balboaSocket)
 	if err != nil {
-		fmt.Printf("Failed to resolve: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to resolve: %v\n", err)
 	}
 	cs, err := net.DialUnix("unix", nil, addr)
 	if err != nil {
-		fmt.Printf("Failed to dial: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to dial: %v\n", err)
 	}
 	defer cs.Close()
 
-	//defer cs.Close()
-	if err != nil {
-		panic(err)
-	}
 	// pop redis queue
 	for {
 		dnsLine, err := redis.String(cr.Do("LPOP", "analyzer:8:"+c.redisQueue))
+		dnsLine = fmt.Sprintf("%s%s", dnsLine, "\n")
 		if err != nil {
 			fmt.Println("Queue processed.")
 			os.Exit(0)
 		}
 		// Write in Balboa socket
-		if i, err := cs.Write([]byte(dnsLine)); err != nil {
-			fmt.Printf("DIAL: Error: %v\n", err)
+		if _, err := cs.Write([]byte(dnsLine)); err != nil {
+			fmt.Printf("Write Error: %v\n", err)
 		} else {
-			fmt.Printf("Sent %v bytes\n", i)
+			fmt.Printf("Write: %v", dnsLine)
 		}
 
 		// Exit Signal Handle
