@@ -16,7 +16,12 @@ go get https://github.com/D4-project/analyzer-d4-balboa
  $analyzer-d4-balboa -c conf.sample
  ```
  
- # Query Balboa to test
+# Send PassiveDNS data to d4
+```bash
+# passivedns -i eth0 -l /dev/stdout | d4-amd64l -c conf.d4server
+```
+
+ # Query Balboa GraphQL server
  Once you launched the analyzer, pick one of the domains listed in its output and query Balboa (serving here on http://127.0.0.1:8080):
  ```bash
  #!/bin/bash
