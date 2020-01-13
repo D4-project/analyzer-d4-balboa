@@ -1,3 +1,7 @@
+# Archiving analyzer-d4-balboa
+This repository is now archived - to interface D4 with Balboa, the prefered tool is [d4-core generic unix socket exporter](https://github.com/D4-project/d4-core/blob/master/server/analyzer/analyzer-d4-export/d4_export_unix.py).
+
+
 # analyzer-d4-balboa
 Ingests Type 8 Passive DNS and writes into a linux socket for balboa https://github.com/DCSO/balboa to consume
 
